@@ -1,0 +1,18 @@
+[package]
+name = "stegano-glyph"
+version = "0.1.0"
+edition = "2021"
+description = "Steganographic encryption tool - hide encrypted data in plain sight"
+license = "MIT"
+repository = "https://github.com/Querulantenkind/stegano-glyph"
+
+[dependencies]
+age = "0.11"
+clap = { version = "4", features = ["derive"] }
+thiserror = "2"
+crc32fast = "1.4"
+
+[profile.release]
+lto = true
+strip = true
+
