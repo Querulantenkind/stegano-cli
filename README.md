@@ -1,86 +1,117 @@
 # STEGANO-GLYPH
 
-**Status:** Prototype / Active Development
+**Version:** 0.2.0-alpha
+**Status:** Active Development
 **License:** MIT / Apache-2.0
 
 ## Abstract
 
-Stegano-Glyph is a command-line utility designed for the secure transport of information through visual obfuscation. It generates abstract ASCII imagery—ranging from noise patterns to structured industrial schematics—and injects encrypted payloads directly into the character stream using non-printing Unicode markers.
+Stegano-Glyph is a cryptographic obfuscation suite designed for the secure transport of information through hostile monitoring environments. Unlike traditional encryption tools which output easily identifiable high-entropy data blocks (such as PGP armor), Stegano-Glyph masks encrypted payloads within procedurally generated, low-entropy ASCII artifacts.
 
-This project operates at the intersection of cryptography and digital aesthetics, providing a mechanism for "plausible deniability" in communication. To the naked eye and standard text editors, the output is merely a generative art piece or a corrupted log file. To the recipient holding the correct identity key, it is a secure container for sensitive data.
+The tool operates on the principle of "Visual Indifference": creating data containers that appear to be innocuous digital refuse—system logs, compiler warnings, abstract art, or plain text documentation—thereby bypassing heuristic scanners designed to flag encrypted communications.
 
-## The Philosophy
+## Operational Doctrine
 
-In an environment defined by deep packet inspection and metadata retention, standard encryption flags attention. An encrypted PGP block declares itself as a secret immediately. True anonymity requires that the existence of the secret itself be concealed.
+### The Grey Man Theory of Data
+In physical surveillance, the "Grey Man" is an individual who avoids observation by blending seamlessly into the crowd. Stegano-Glyph applies this to digital signaling. By embedding data into structures that look like "noise" or "standard output," the transmission avoids metadata tagging.
 
-Stegano-Glyph treats visual chaos as a hiding place. By masquerading as "aesthetic noise"—or the visual artifacts of the `museum-of-abstract-cyphers`—sensitive payloads can be transmitted in plain sight on public forums, pastebins, or chat logs without triggering entropy-based scanning heuristics that look for standard cryptographic headers.
+### Threat Model
+This tool is designed to counter:
+1.  **Automated Entropy Scanners:** Systems that flag text blocks with high character randomness (typical of raw ciphertext).
+2.  **Casual Observation:** Human monitors reviewing chat logs or pastebins who ignore "broken" text or "art" as irrelevant.
+3.  **Association Attacks:** Preventing the linkage of a pseudonymous identity to PGP keys by never publicly displaying the key headers.
 
-## Technical Specifications
+## Core Systems
 
-### 1. Cryptographic Layer
-The application utilizes the **Age** encryption standard (Actually Good Encryption), replacing legacy GPG complexities with modern primitives.
-- **Primitive:** X25519 for key exchange, ChaCha20-Poly1305 for symmetric encryption.
-- **Keys:** Uses compact, string-based public/private key pairs designed for easy manual entry in terminal environments.
-- **Padding:** Payloads are padded to uniform block sizes to prevent traffic analysis based on message length.
+### 1. The Cipher Engine
+Stegano-Glyph utilizes the **Age** encryption standard (Actually Good Encryption) for the cryptographic layer.
+- **Algorithm:** X25519 (Curve25519) for asymmetric key exchange; ChaCha20-Poly1305 for authenticated symmetric encryption.
+- **Forward Secrecy:** Ephemeral session keys are generated for every payload.
+- **Armor:** No PEM headers or footers are retained in the final artifact; only the raw binary stream is passed to the steganography layer.
 
-### 2. Steganographic Layer
-Information is not hidden in the visual pixels, but in the text encoding itself.
-- **Method:** Zero-Width Character Injection.
-- **Mechanism:** The encrypted ciphertext is converted into a binary stream. This stream is mapped to invisible Unicode code points (e.g., U+200B Zero Width Space, U+200C Zero Width Non-Joiner).
-- **Injection Strategy:** These invisible characters are interleaved within the visible ASCII characters of the cover art. This ensures that line-wrapping or formatting changes in some viewers do not destroy the contiguous payload.
+### 2. The Steganography Engine
+The engine maps the encrypted binary stream to invisible or unobtrusive Unicode code points.
+- **Zero-Width Injection:** Utilizing `U+200B` (Zero Width Space), `U+200C` (Zero Width Non-Joiner), and `U+200D` (Zero Width Joiner) to encode binary data between visible characters.
+- **Whitespace Modulation:** Encoding data by varying the use of space (0x20) and tab (0x09) characters at the end of lines (EOL), ideal for hiding data in source code files.
+- **Homoglyph Substitution (Experimental):** Swapping Latin characters for visually identical Cyrillic or Greek counterparts to encode bitstreams (e.g., Latin 'a' vs Cyrillic 'а').
 
-### 3. Visual Layer (The Cover)
-The "cover text" is procedurally generated based on themes defined in the `style-atlas`.
-- **Matrix:** Falling binary streams and katakana-esque glyphs.
-- **Redacted:** Simulates a declassified government document with heavy use of block elements (█) and censoring bars.
-- **Noise:** High-entropy character scatter, mimicking data corruption or static.
-- **Ghost:** Minimalist, whitespace-heavy structures for low-profile transmission.
+### 3. The Mimicry Engine (The Loom)
+The "Loom" generates the cover text that houses the payload. It supports multiple camouflage patterns:
+
+*   **Pattern A: Abstract (The Museum):** Generates aesthetic ASCII patterns, leveraging algorithms similar to those found in the `museum-of-abstract-cyphers`.
+*   **Pattern B: Redacted (The Dossier):** Simulates declassified government documents with block elements (█), distinct timestamps, and "censored" text blocks.
+*   **Pattern C: Source (The Developer):** Generates syntactically correct (but functionally useless) pseudo-code in Rust, Python, or C. The payload is hidden in the code's comments and whitespace.
+*   **Pattern D: Logfile (The Sysadmin):** Mimics standard `syslog` or `dmesg` output, hiding data within timestamp variations and error codes.
+
+## Advanced Capabilities
+
+### Chaffing and Decoys
+To counter coercion or deep forensic analysis, Stegano-Glyph supports "Chaffing."
+- Users can embed *two* messages in a single artifact: a "Decoy" message and the "True" payload.
+- The artifact contains two distinct encrypted streams intermingled.
+- Decrypting with the *Duress Key* reveals the Decoy (e.g., "Meeting cancelled").
+- Decrypting with the *Master Key* reveals the True payload (e.g., "Coordinates attached").
+
+### Integrity Verification
+Because steganography is fragile (susceptible to whitespace stripping by text editors), Stegano-Glyph includes a "Fragility Check."
+- Before embedding, a CRC32 checksum of the payload is calculated.
+- Upon decoding, if the checksum fails (indicating the cover text was formatted or stripped), the tool alerts the user that the message has been compromised or corrupted.
 
 ## Installation
-
-Stegano-Glyph is written in Rust for memory safety and binary portability.
 
 ```bash
 git clone https://github.com/Querulantenkind/stegano-glyph
 cd stegano-glyph
-cargo install --path .
+cargo build --release
+cp target/release/stegano-glyph /usr/local/bin/
 ```
 
-## Usage Documentation
+## Usage Guide
 
-### Key Generation
-Before transmission, generate an age-compatible identity.
+### 1. Identity Management
+Generate an age-compatible key pair.
 
 ```bash
-# Generate a new identity file
-stegano-glyph keygen --output ~/.stegano/identity.key
-
-# Extract public key for distribution
-stegano-glyph keygen --show-public --identity ~/.stegano/identity.key
+stegano-glyph keygen --out ~/.stegano/id_master
 ```
 
-### Encoding (Encryption + Hiding)
-Embed a message into a generated visual artifact.
+### 2. Artifact Generation (Encoding)
+
+**Scenario:** Hiding a coordinate string inside a fake system log.
 
 ```bash
-# Syntax: stegano-glyph encode [OPTIONS] --recipient [PUBKEY]
-echo "Operation Midnight is go." | stegano-glyph encode \
-    --recipient "age1ql3z7hjy54pw3hyww5..." \
-    --style redacted \
-    --cover-width 80 \
-    > transmission_001.txt
+echo "48.8566 N, 2.3522 E" | stegano-glyph encode \
+    --recipient-file public_keys.txt \
+    --mimic logfile \
+    --log-level error \
+    --output error_dump_2024.log
 ```
 
-### Decoding (Extraction + Decryption)
-The tool automatically detects the steganographic layer, extracts it, and attempts decryption.
+**Scenario:** Hiding a manifesto inside a Markdown file (using whitespace modulation).
 
 ```bash
-# Syntax: stegano-glyph decode --identity [PRIVKEY] < [FILE]
-cat transmission_001.txt | stegano-glyph decode --identity ~/.stegano/identity.key
+cat manifesto.txt | stegano-glyph encode \
+    --recipient-pubkey "age1..." \
+    --mimic markdown \
+    --inject-strategy eol-whitespace \
+    > README_DRAFT.md
 ```
 
-## Security Notice
+### 3. Artifact Extraction (Decoding)
 
-While the encryption layer uses industry-standard primitives, the steganographic layer is susceptible to "sanitization" attacks. If the ASCII artifact is pasted into a system that strips non-ASCII characters or normalizes Unicode (like some strict social media platforms), the hidden payload will be destroyed. Always verify integrity via a checksum if possible.
+The tool automatically detects the presence of Stegano-Glyph artifacts in a file stream.
 
-**Disclaimer:** This tool is for educational and research purposes regarding data privacy and censorship resistance.
+```bash
+cat error_dump_2024.log | stegano-glyph decode --identity ~/.stegano/id_master
+```
+
+## Integration with TailsOS
+
+For users of `tails-of-anonymity`, this tool is designed to live in the Persistent Storage partition (`/live/persistence/TailsData_unlocked/`).
+- It requires no external network dependencies after compilation.
+- It leaves no temp files; all processing is done in RAM.
+- It pairs with the native `keepassxc` or `gnupg` flows for key management.
+
+## Disclaimer
+
+Stegano-Glyph provides **obscurity**, not just encryption. However, strict network monitoring may detect the statistical anomaly of the non-printing characters if deep file analysis is performed. This tool is intended for privacy research and censorship resistance.
