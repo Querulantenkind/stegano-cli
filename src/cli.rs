@@ -14,6 +14,13 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
+    /// Generate a new Age keypair for public key encryption
+    Keygen {
+        /// Output file for the identity (private key). Public key is printed to stderr.
+        #[arg(short, long)]
+        output: String,
+    },
+
     /// Encode a secret message into cover text
     Encode {
         /// Cover text file (the innocent-looking text to hide data in)
@@ -31,6 +38,14 @@ pub enum Commands {
         /// Output file (default: stdout)
         #[arg(short, long)]
         output: Option<String>,
+
+        /// Recipient public key (age1...). Can be specified multiple times.
+        #[arg(short, long, action = clap::ArgAction::Append)]
+        recipient: Vec<String>,
+
+        /// File containing recipient public keys (one per line)
+        #[arg(short = 'R', long)]
+        recipient_file: Option<String>,
     },
 
     /// Decode a hidden message from an artifact
@@ -38,6 +53,9 @@ pub enum Commands {
         /// Input file containing the artifact (default: stdin)
         #[arg(short, long)]
         input: Option<String>,
+
+        /// Identity file (private key) for decryption. If not provided, uses passphrase.
+        #[arg(short = 'I', long)]
+        identity: Option<String>,
     },
 }
-
